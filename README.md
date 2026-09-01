@@ -151,8 +151,24 @@ For Docker deployment:
    uvicorn app.main:app --host 0.0.0.0 --port 8000
    ```
 
-Open <http://127.0.0.1:8000> for the web demo or
+Open <http://127.0.0.1:8000> for the production web demo or
 <http://127.0.0.1:8000/docs> for the OpenAPI documentation.
+
+### Frontend development
+
+The web demo source is in [`frontend/`](frontend/) and uses React + Vite. Run
+Vite with the API server running separately:
+
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+Open <http://127.0.0.1:5173>. Vite proxies `/api` requests to
+`http://127.0.0.1:8000`. For a production bundle, run `npm run build`; the configured output is `web/`,
+which is served by FastAPI and built automatically by the multi-stage Dockerfile.
+When Vercel sets `VERCEL=1`, the output is `frontend/dist` for Vercel hosting.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -200,6 +216,21 @@ Example successful response:
 Every response includes `X-Request-ID`. A client may provide its own
 `X-Request-ID` to correlate a support case across requests.
 
+Persistent API resources include:
+
+- `POST/GET /api/v1/meters` and `GET /api/v1/meters/{meter_id}`
+- `GET /api/v1/meters/{meter_id}/readings`
+- `GET /api/v1/readings`
+- `GET /api/v1/reviews` and `PATCH /api/v1/reviews/{task_id}`
+- `GET/POST /api/v1/models`
+- `GET /api/v1/audit`
+
+Submit `meter_id` as an optional multipart field with recognition requests. When
+persistence is enabled, WBrain stores the reading, detection metadata, SHA-256
+image hash, model version, status, and audit event. Raw images are not stored by
+default. Set `STORE_IMAGES=true` only when the customer's retention policy allows
+it.
+
 ### Run tests
 
 ```bash
@@ -217,14 +248,20 @@ binaries outside the generic runtime image:
 docker compose up --build -d
 ```
 
-The service is available at <http://127.0.0.1:8000>. Update the host model paths
+The service is available at <http://127.0.0.1:18000> by default. If `WBRAIN_HTTP_PORT` is set, replace `18000` with that port. Update the host model paths
 in [`docker-compose.yml`](docker-compose.yml) for each deployment. The current
 example uses:
 
+- Persistent database: `${WBRAIN_DATA_DIR:-./data}/wbrain.db`
+- Persistent application logs: `${WBRAIN_LOG_DIR:-./logs}`
 - YOLO ONNX: `/models/yolo/train/weights/best.onnx`
 - EditCTC checkpoint: `/models/editctc/checkpoint/best_accuracy`
 - EditCTC config: `/models/editctc/checkpoint/config.yml`
 - EditCTC code and dictionary: `/models/editctc/code`
+
+For customer deployments, set `API_KEY` as a secret environment variable. Clients
+must then send `X-API-Key` on all `/api/v1` endpoints except health. Never commit
+or put this key in a Dockerfile, image layer, README, or support bundle.
 
 ### Release workflow
 
@@ -248,6 +285,8 @@ versioned Docker Hub image and customer license
 Generated customer artifacts belong in `release/` and must not be committed.
 Version notes belong in `release-notes/vX.Y.Z.md`.
 
+The API-first contract and implementation plan are tracked in
+[`openspec/changes/api-first-platform/`](openspec/changes/api-first-platform/).
 The license and encrypted-artifact runtime implementation is tracked in
 [`openspec/changes/enterprise-onprem-licensing/`](openspec/changes/enterprise-onprem-licensing/).
 Do not distribute production customer artifacts until the license verification,
@@ -301,6 +340,30 @@ message, and correlation ID. Provide those values and the relevant timestamp
 to support.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Vercel Deployment
+
+Vercel can host the React/Vite web app and a same-origin API proxy. Configure the
+project root as the repository root and set:
+
+```text
+WBRAIN_BACKEND_URL=https://your-inference-api.example.com
+```
+
+Deploy with:
+
+```bash
+vercel --prod
+```
+
+The Vercel API function forwards `/api/*` to `WBRAIN_BACKEND_URL`, including the
+client `X-API-Key` when supplied. The actual YOLO/EditCTC inference should remain
+on Docker, a VM, or an on-premise host; Vercel serverless functions are not a
+suitable place to package these large CPU model artifacts. The Vercel proxy must
+be protected with authentication and HTTPS in production.
+
+Mobile browsers use the rear camera via `facingMode: environment` and the
+`capture="environment"` fallback. Laptop/desktop mode exposes image upload only.
 
 ## Security Model
 

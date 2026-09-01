@@ -3,7 +3,7 @@ schema: spec-driven
 context: |
   Product: WBrain Enterprise On-Premise OCR and Skill Registry
   Runtime: Docker Compose and optional Kubernetes
-  Backend: FastAPI OCR service plus SkillHub-derived backend
+  Backend: FastAPI OCR service plus SkillHub-derived backend; API-first contracts are the SDK source of truth
   Inference: CPU-only YOLO ONNX and EditCTC Paddle/ONNX
   Deployment: Windows and Linux customer environments
   Planning language: Vietnamese or English; user-facing behavior first

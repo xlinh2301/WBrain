@@ -13,9 +13,16 @@ class Settings(BaseSettings):
     device: str = "cpu"
     yolo_confidence: float = 0.35
     max_image_bytes: int = 10 * 1024 * 1024
-    log_path: Path = Path("/var/log/wbrain/app.log")
+    log_path: Path = Path("logs/app.log")
     log_max_bytes: int = 10 * 1024 * 1024
     log_backup_count: int = 5
+    database_path: Path = Path("data/wbrain.db")
+    image_storage_dir: Path = Path("data/images")
+    persistence_enabled: bool = True
+    store_images: bool = False
+    api_key: str | None = None
+    review_confidence_threshold: float = 0.70
+    model_version: str = "unversioned"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

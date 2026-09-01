@@ -13,7 +13,7 @@ Then run:
 docker compose up --build
 ```
 
-Open `http://localhost:8000`. The container exposes only CPU providers. The compose file mounts `models/` read-only.
+Open `http://localhost:18000` by default on Windows. Set `WBRAIN_HTTP_PORT=8000` or another free host port when needed. The container exposes only CPU providers. The compose file mounts `models/` read-only.
 
 ## Native Paddle fallback
 

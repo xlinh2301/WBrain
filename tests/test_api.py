@@ -40,6 +40,15 @@ def test_rejects_non_image_with_stable_error():
     assert "traceback" not in response.text.lower()
 
 
+def test_requires_configured_api_key(monkeypatch):
+    import app.main as main
+
+    monkeypatch.setattr(main.settings, "api_key", "test-key")
+    response = TestClient(app).get("/api/v1/meters")
+    assert response.status_code == 401
+    monkeypatch.setattr(main.settings, "api_key", None)
+
+
 def test_preserves_client_request_id():
     request_id = "support-case-123"
     response = TestClient(app).get(

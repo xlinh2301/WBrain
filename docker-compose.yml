@@ -3,7 +3,9 @@ services:
     build: .
     image: wbrain:cpu
     ports:
-      - "8000:8000"
+      # Port 8000 may be reserved by Windows IP Helper on some hosts.
+      # Override with WBRAIN_HTTP_PORT if needed.
+      - "${WBRAIN_HTTP_PORT:-18000}:8000"
     environment:
       DEVICE: cpu
       YOLO_MODEL_PATH: /models/yolo/train/weights/best.onnx
@@ -15,6 +17,12 @@ services:
       LOG_PATH: /var/log/wbrain/app.log
       LOG_MAX_BYTES: "10000000"
       LOG_BACKUP_COUNT: "5"
+      DATABASE_PATH: /var/lib/wbrain/wbrain.db
+      IMAGE_STORAGE_DIR: /var/lib/wbrain/images
+      PERSISTENCE_ENABLED: "true"
+      STORE_IMAGES: "false"
+      REVIEW_CONFIDENCE_THRESHOLD: "0.70"
+      MODEL_VERSION: "yolo11m-obb-editctc-s1024"
     volumes:
       # Adjust these Windows host paths to the actual model locations.
       - "E:/workspace_research/workspace5/workdir_text_det/outputs/detect_yolo11m:/models/yolo:ro"
@@ -22,6 +30,7 @@ services:
       - "E:/NCKH/workdir_waterclock/release_EditCTC/code:/models/editctc/code:ro"
       # Set WBRAIN_LOG_DIR to a customer-owned persistent directory.
       - "${WBRAIN_LOG_DIR:-./logs}:/var/log/wbrain"
+      - "${WBRAIN_DATA_DIR:-./data}:/var/lib/wbrain"
     logging:
       driver: json-file
       options:
