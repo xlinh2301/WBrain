@@ -1,0 +1,54 @@
+# Nylo - Micro-framework for Flutter.
+#
+# Website: https://nylo.dev
+# Official repository: https://github.com/nylo-core/nylo
+# Author: Anthony Gordon <https://github.com/agordn52>
+
+name: wbrain_mobile
+description: WBrain water-meter OCR mobile demo built with Nylo.
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  camera: ^0.11.0+2
+  file_picker: ^8.1.7
+  http: ^1.2.2
+  google_fonts: ^8.2.1
+  analyzer: ^13.0.0
+  intl: ^0.20.2
+  nylo_framework: ^7.1.26
+  cupertino_icons: ^1.0.9
+  font_awesome_flutter: ^11.0.0
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
+  # The following line 'flutter_lints' activates a set of recommended lints.
+  #  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+# APP ICON - public/app_icon/icon.png
+# Build icons: "dart run flutter_launcher_icons"
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_icon/icon.png"
+  remove_alpha_ios: true
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/fonts/
+    - assets/images/
+    - assets/app_icon/
+    - lang/
