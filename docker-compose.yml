@@ -1,0 +1,20 @@
+services:
+  wbrain:
+    build: .
+    image: wbrain:cpu
+    ports:
+      - "8000:8000"
+    environment:
+      DEVICE: cpu
+      YOLO_MODEL_PATH: /models/yolo/train/weights/best.onnx
+      EDITCTC_MODEL_PATH: /models/editctc/checkpoint/best_accuracy
+      EDITCTC_CONFIG_PATH: /models/editctc/checkpoint/config.yml
+      EDITCTC_CODE_DIR: /models/editctc/code
+      EDITCTC_DICT_PATH: /models/editctc/code/ppocr/utils/dict/ppocrv6_dict.txt
+      YOLO_CONFIDENCE: "0.35"
+    volumes:
+      # Adjust these Windows host paths to the actual model locations.
+      - "E:/workspace_research/workspace5/workdir_text_det/outputs/detect_yolo11m:/models/yolo:ro"
+      - "E:/NCKH/workdir_waterclock/Checkpoint/EditCTC/s1024:/models/editctc/checkpoint:ro"
+      - "E:/NCKH/workdir_waterclock/release_EditCTC/code:/models/editctc/code:ro"
+    restart: unless-stopped
