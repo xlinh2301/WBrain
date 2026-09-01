@@ -608,7 +608,7 @@ export default function App() {
             <BboxPreview src={preview} crops={result.crops || []} />
             <Json value={result} />
             <button
-              className="result-done",
+              className="result-done"
               onClick={() => setResultOpen(false)}
             >
               Đóng kết quả
@@ -674,7 +674,10 @@ function BboxPreview({ src, crops }) {
               height: `${((y2 - y1) / size.height) * 100}%`,
             }}
           >
-            <span>{crop.text || "text"} · {((crop.text_confidence || 0) * 100).toFixed(0)}%</span>
+            <span>
+              {crop.text || "text"} ·{" "}
+              {((crop.text_confidence || 0) * 100).toFixed(0)}%
+            </span>
           </div>
         );
       })}
