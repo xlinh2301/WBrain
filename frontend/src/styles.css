@@ -412,3 +412,53 @@ a {
         box-shadow: none;
     }
 }
+
+/* Adapted from javascript-mobile-app-template: fit canvas, top bar, safe area. */
+.mobile-app {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    width: min(600px, 100%);
+    max-width: 600px;
+    min-height: 100dvh;
+    background: #ffffff;
+}
+.mobile-app header {
+    min-height: 105px;
+    padding-top: calc(20px + var(--sat));
+    background: #ffffff;
+    color: #141414;
+    border-bottom: 1px solid #e5e5e5;
+    border-radius: 0;
+}
+.mobile-app header h1 span {
+    color: #141414;
+}
+.mobile-app header p,
+.mobile-app .eyebrow {
+    color: #666666;
+    opacity: 1;
+}
+.mobile-app header > button {
+    color: #141414;
+    background: #f0f0f0;
+}
+.mobile-app main {
+    padding-bottom: calc(96px + var(--sab));
+}
+.mobile-app section {
+    border: 0;
+    border-radius: 13px;
+    box-shadow: none;
+}
+.mobile-app .mobile-nav {
+    min-height: 80px;
+    padding-bottom: calc(8px + var(--sab));
+    border-top: 1px solid #dddddd;
+}
+.mobile-app .mobile-nav button.active {
+    color: #ffffff;
+    background: #141414;
+}
+.mobile-app .mobile-nav button {
+    border-radius: 10px;
+}
