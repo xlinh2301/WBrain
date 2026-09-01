@@ -1,0 +1,12 @@
+model_name: yolo-textdetector
+model_path: ../model/model.onnx
+input:
+  size: 640
+  layout: NCHW
+  color: RGB
+  dtype: float32
+  scale: 0.003921568627451
+postprocess:
+  confidence: 0.35
+  iou: 0.45
+  output_format: xyxy

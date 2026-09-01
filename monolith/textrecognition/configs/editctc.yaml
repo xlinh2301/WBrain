@@ -1,0 +1,17 @@
+model_name: editctc
+model_path: ../model/model.onnx
+dictionary: ../model/dictionary.txt
+input:
+  shape: [3, 48, 320]
+  layout: NCHW
+  color: RGB
+  dtype: float32
+  scale: 0.003921568627451
+output:
+  logits_index: 0
+  ctc_blank_index: 0
+export:
+  opset: 17
+  dynamic_batch: true
+  source_checkpoint: /models/textrecognition/checkpoint/best_accuracy
+  source_config: /models/textrecognition/checkpoint/config.yml
