@@ -1,0 +1,23 @@
+schema: spec-driven
+
+context: |
+  Product: WBrain Enterprise On-Premise OCR and Skill Registry
+  Runtime: Docker Compose and optional Kubernetes
+  Backend: FastAPI OCR service plus SkillHub-derived backend
+  Inference: CPU-only YOLO ONNX and EditCTC Paddle/ONNX
+  Deployment: Windows and Linux customer environments
+  Planning language: Vietnamese or English; user-facing behavior first
+
+rules:
+  specs:
+    - Requirements must describe observable customer behavior and acceptance outcomes.
+    - Include online and offline deployment scenarios where relevant.
+    - Include Windows path and PowerShell scenarios for installer or model paths.
+    - Put implementation mechanisms in design.md unless they are part of the product contract.
+    - Never claim absolute protection against a customer Administrator/root.
+  tasks:
+    - Include Windows and Linux verification for deployment changes.
+    - Include security, legal, and rollback tests for licensing changes.
+  design:
+    - Document platform-specific behavior and privileged-host limitations.
+    - Keep upstream Apache 2.0 obligations separate from proprietary additions.

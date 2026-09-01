@@ -13,3 +13,13 @@ class RecognitionResponse(BaseModel):
     processing_ms: float
     crops: list[CropResult]
     warning: str | None = None
+
+
+class ErrorBody(BaseModel):
+    code: str
+    message: str
+    request_id: str
+
+
+class ErrorResponse(BaseModel):
+    error: ErrorBody

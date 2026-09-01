@@ -12,9 +12,19 @@ services:
       EDITCTC_CODE_DIR: /models/editctc/code
       EDITCTC_DICT_PATH: /models/editctc/code/ppocr/utils/dict/ppocrv6_dict.txt
       YOLO_CONFIDENCE: "0.35"
+      LOG_PATH: /var/log/wbrain/app.log
+      LOG_MAX_BYTES: "10000000"
+      LOG_BACKUP_COUNT: "5"
     volumes:
       # Adjust these Windows host paths to the actual model locations.
       - "E:/workspace_research/workspace5/workdir_text_det/outputs/detect_yolo11m:/models/yolo:ro"
       - "E:/NCKH/workdir_waterclock/Checkpoint/EditCTC/s1024:/models/editctc/checkpoint:ro"
       - "E:/NCKH/workdir_waterclock/release_EditCTC/code:/models/editctc/code:ro"
+      # Set WBRAIN_LOG_DIR to a customer-owned persistent directory.
+      - "${WBRAIN_LOG_DIR:-./logs}:/var/log/wbrain"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
     restart: unless-stopped

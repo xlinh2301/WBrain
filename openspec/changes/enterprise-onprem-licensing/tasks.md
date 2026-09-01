@@ -1,0 +1,27 @@
+# Tasks
+
+- [ ] Confirm product name, branding, and trademark policy
+- [ ] Define Git branch/tag/version policy (`vMAJOR.MINOR.PATCH`)
+- [ ] Define source-to-release Dockerfile and reproducible build inputs
+- [ ] Define generated `release/` layout and Git ignore policy
+- [ ] Define Docker Hub organization, private repositories, tags, and retention policy
+- [ ] Define committed `release-notes/vX.Y.Z.md` format and change-note ownership
+- [ ] Confirm license states: valid, grace, expired, revoked, wrong deployment
+- [ ] Confirm expired behavior: hard stop, read-only, or feature disablement
+- [ ] Define online activation API and offline challenge format
+- [ ] Implement Ed25519 license signer and backend verifier
+- [ ] Implement `LicenseGuard` and protected-feature enforcement
+- [ ] Add deployment fingerprint and VM migration policy
+- [ ] Define Fernet encrypted model/package format and key release flow
+- [ ] Define encrypted `.so` loading mechanism and cleanup policy for Linux/Windows equivalents
+- [ ] Build offline release bundle with image digests and SBOM
+- [ ] Add image signing and installer verification
+- [ ] Remove demo credentials/mock auth from production profile
+- [ ] Add audit events and security hardening checks
+- [x] Add debugging/error recovery: stable error codes, correlation IDs, structured JSON logs, redaction, and safe diagnostics bundle
+- [x] Persist container logs through host-mounted volume with rotation, retention, and disk-full handling
+- [ ] Test expiry, clock rollback, copy-to-second-host, and recovery
+- [ ] Verify installer/model mounts on Windows PowerShell and Linux shell
+- [ ] Review Apache 2.0, NOTICE, third-party licenses, and commercial terms
+- [x] Review customer support log collection and privacy/retention policy
+- [ ] Obtain product/legal/security approval before implementation

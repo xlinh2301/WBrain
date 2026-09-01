@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     device: str = "cpu"
     yolo_confidence: float = 0.35
     max_image_bytes: int = 10 * 1024 * 1024
+    log_path: Path = Path("/var/log/wbrain/app.log")
+    log_max_bytes: int = 10 * 1024 * 1024
+    log_backup_count: int = 5
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

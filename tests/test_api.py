@@ -18,6 +18,7 @@ def test_health():
     response = TestClient(app).get("/api/v1/health")
     assert response.status_code == 200
     assert response.json()["device"] == "cpu"
+    assert response.headers["x-request-id"]
 
 
 def test_pipeline_contract():
@@ -28,8 +29,44 @@ def test_pipeline_contract():
     assert elapsed >= 0
 
 
-def test_rejects_non_image():
+def test_rejects_non_image_with_stable_error():
     response = TestClient(app).post(
         "/api/v1/recognize", files={"file": ("a.txt", b"hello", "text/plain")}
     )
     assert response.status_code == 415
+    body = response.json()["error"]
+    assert body["code"] == "WBRAIN-API-001"
+    assert body["request_id"] == response.headers["x-request-id"]
+    assert "traceback" not in response.text.lower()
+
+
+def test_preserves_client_request_id():
+    request_id = "support-case-123"
+    response = TestClient(app).get(
+        "/api/v1/health", headers={"X-Request-ID": request_id}
+    )
+    assert response.headers["x-request-id"] == request_id
+
+
+def test_pipeline_failure_is_safe(monkeypatch):
+    def fail(*args, **kwargs):
+        raise RuntimeError("license=super-secret model bytes")
+
+    monkeypatch.setattr("app.main.run_pipeline", fail)
+    response = TestClient(app).post(
+        "/api/v1/recognize", files={"file": ("a.jpg", b"not-an-image", "image/jpeg")}
+    )
+    # Decode happens before inference for malformed input.
+    assert response.status_code == 400
+
+    image = np.zeros((10, 10, 3), dtype=np.uint8)
+    import cv2
+
+    ok, encoded = cv2.imencode(".jpg", image)
+    assert ok
+    response = TestClient(app).post(
+        "/api/v1/recognize", files={"file": ("a.jpg", encoded.tobytes(), "image/jpeg")}
+    )
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "WBRAIN-PIPELINE-001"
+    assert "super-secret" not in response.text
