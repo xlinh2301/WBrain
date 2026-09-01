@@ -11,10 +11,36 @@ const api = async (path, options = {}, apiKey = "") => {
   const data = await response.json().catch(() => ({}));
   if (!response.ok)
     throw new Error(
-      `${data?.error?.code || response.status} — ${data?.error?.message || "Request failed"}`,
+      `${data?.error?.code || response.status} — ${data?.error?.message || (response.status === 413 ? "Ảnh quá lớn, hãy thử lại với ảnh nhỏ hơn" : "Request failed")}`,
     );
   return data;
 };
+
+async function optimizeImage(blob) {
+  const image = new Image();
+  const source = URL.createObjectURL(blob);
+  try {
+    await new Promise((resolve, reject) => {
+      image.onload = resolve;
+      image.onerror = reject;
+      image.src = source;
+    });
+    const maxSide = 1600;
+    const scale = Math.min(
+      1,
+      maxSide / Math.max(image.naturalWidth, image.naturalHeight),
+    );
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+    return await new Promise((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", 0.78),
+    );
+  } finally {
+    URL.revokeObjectURL(source);
+  }
+}
 
 function Json({ value }) {
   return <pre className="json">{JSON.stringify(value, null, 2)}</pre>;
@@ -139,8 +165,10 @@ export default function App() {
   async function recognize(blob = file) {
     if (!blob) return setError("Hãy chọn ảnh trước");
     await call(async () => {
+      const optimized = await optimizeImage(blob);
+      if (!optimized) throw new Error("Không thể nén ảnh");
       const form = new FormData();
-      form.append("file", blob, "meter.jpg");
+      form.append("file", optimized, "meter.jpg");
       if (selectedMeter) form.append("meter_id", selectedMeter);
       const data = await api(
         "/api/v1/recognize",
