@@ -8,11 +8,9 @@ services:
       - "${WBRAIN_HTTP_PORT:-18000}:8000"
     environment:
       DEVICE: cpu
-      YOLO_MODEL_PATH: /models/yolo/train/weights/best.onnx
-      EDITCTC_MODEL_PATH: /models/editctc/checkpoint/best_accuracy
-      EDITCTC_CONFIG_PATH: /models/editctc/checkpoint/config.yml
-      EDITCTC_CODE_DIR: /models/editctc/code
-      EDITCTC_DICT_PATH: /models/editctc/code/ppocr/utils/dict/ppocrv6_dict.txt
+      YOLO_MODEL_PATH: /models/monolith/textdetection/model/model.onnx
+      EDITCTC_MODEL_PATH: /models/monolith/textrecognition/model/model.onnx
+      EDITCTC_DICT_PATH: /models/monolith/textrecognition/model/dictionary.txt
       YOLO_CONFIDENCE: "0.35"
       LOG_PATH: /var/log/wbrain/app.log
       LOG_MAX_BYTES: "10000000"
@@ -25,9 +23,7 @@ services:
       MODEL_VERSION: "yolo11m-obb-editctc-s1024"
     volumes:
       # Adjust these Windows host paths to the actual model locations.
-      - "E:/workspace_research/workspace5/workdir_text_det/outputs/detect_yolo11m:/models/yolo:ro"
-      - "E:/NCKH/workdir_waterclock/Checkpoint/EditCTC/s1024:/models/editctc/checkpoint:ro"
-      - "E:/NCKH/workdir_waterclock/release_EditCTC/code:/models/editctc/code:ro"
+      - "./monolith:/models/monolith:ro"
       # Set WBRAIN_LOG_DIR to a customer-owned persistent directory.
       - "${WBRAIN_LOG_DIR:-./logs}:/var/log/wbrain"
       - "${WBRAIN_DATA_DIR:-./data}:/var/lib/wbrain"
