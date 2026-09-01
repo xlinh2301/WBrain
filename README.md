@@ -341,6 +341,24 @@ to support.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Mobile App (Nylo)
+
+A separate Flutter mobile demo is available in [`mobile/`](mobile/), based on
+[Nylo](https://github.com/nylo-core/nylo) 7.x. Mobile mode explicitly selects
+the rear camera, captures an image, and uploads it to the same recognition API.
+Laptop/desktop remains upload-only in the React/Vite web demo.
+
+Run on an Android emulator with the local Docker API:
+
+```bash
+cd mobile
+flutter pub get
+flutter run --dart-define=WBRAIN_API_URL=http://10.0.2.2:18000
+```
+
+See [`mobile/README.md`](mobile/README.md) for physical-device, HTTPS, API key,
+and release build instructions.
+
 ## Vercel Deployment
 
 Vercel can host the React/Vite web app and a same-origin API proxy. Configure the
