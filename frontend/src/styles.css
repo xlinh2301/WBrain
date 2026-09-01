@@ -462,3 +462,146 @@ a {
 .mobile-app .mobile-nav button {
     border-radius: 10px;
 }
+.camera-fullscreen {
+    position: fixed;
+    z-index: 50;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: #050505;
+    color: white;
+}
+.camera-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 64px;
+    padding: max(10px, env(safe-area-inset-top)) 18px 10px;
+    font-weight: 800;
+}
+.camera-close {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    background: #ffffff22;
+    font-size: 28px;
+    line-height: 1;
+}
+.camera-status {
+    color: #86efac;
+    font-size: 11px;
+}
+.camera-fullscreen video {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    object-fit: cover;
+    background: #111;
+}
+.camera-guide {
+    position: absolute;
+    top: 35%;
+    left: 10%;
+    width: 80%;
+    height: 25%;
+    border: 2px solid #ffffffcc;
+    border-radius: 18px;
+    box-shadow: 0 0 0 999px #00000036;
+    pointer-events: none;
+}
+.camera-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-height: 150px;
+    padding: 16px 20px max(24px, env(safe-area-inset-bottom));
+    background: #050505;
+    color: #d4d4d4;
+    font-size: 12px;
+}
+.shutter {
+    width: 74px;
+    height: 74px;
+    padding: 0;
+    border: 6px solid #ffffff;
+    border-radius: 50%;
+    background: #14b8a6;
+    box-shadow: 0 0 0 4px #ffffff44;
+}
+.shutter:active {
+    transform: scale(0.94);
+}
+.camera-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-height: 150px;
+    padding: 28px 20px max(24px, env(safe-area-inset-bottom));
+    background: #050505;
+}
+.camera-loading small {
+    color: #a3a3a3;
+}
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #ffffff44;
+    border-top-color: #2dd4bf;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.result-modal {
+    position: fixed;
+    z-index: 40;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 14px;
+    background: #00000066;
+}
+.result-modal-card {
+    width: min(600px, 100%);
+    max-height: 85dvh;
+    overflow: auto;
+    padding: 20px;
+    border-radius: 22px 22px 12px 12px;
+    background: white;
+    box-shadow: 0 -8px 40px #00000033;
+}
+.result-modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.result-modal-head h2 {
+    margin: 3px 0 0;
+}
+.result-kicker {
+    color: #0f766e;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+.result-number {
+    margin: 18px 0 2px;
+    color: #0f766e;
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-align: center;
+}
+.result-done {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 12px;
+}

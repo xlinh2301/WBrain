@@ -77,6 +77,9 @@ export default function App() {
   const [audit, setAudit] = useState([]);
   const [busy, setBusy] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
+  const [cameraFullscreen, setCameraFullscreen] = useState(false);
+  const [processingStage, setProcessingStage] = useState("");
+  const [resultOpen, setResultOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [tab, setTab] = useState("recognize");
@@ -94,6 +97,7 @@ export default function App() {
     try {
       return await work();
     } catch (e) {
+      setProcessingStage("");
       setError(e.message);
     } finally {
       setBusy(false);
@@ -170,6 +174,9 @@ export default function App() {
   }
   async function recognize(blob = file) {
     if (!blob) return setError("Hãy chọn ảnh trước");
+    setProcessingStage("Đang chạy detection...");
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    setProcessingStage("Đang chạy recognition...");
     await call(async () => {
       const optimized = await optimizeImage(blob);
       if (!optimized) throw new Error("Không thể nén ảnh");
@@ -182,12 +189,23 @@ export default function App() {
         key,
       );
       setResult(data);
+      setProcessingStage("");
+      if (isMobile) {
+        closeCamera();
+        setResultOpen(true);
+      }
       notify(`Recognition: ${data.reading_status || "stateless"}`);
       if (data.reading_id) {
         await loadReadings();
         await loadReviews();
       }
     });
+  }
+  function closeCamera() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    setCameraReady(false);
+    setCameraFullscreen(false);
   }
   async function startCamera() {
     try {
@@ -197,6 +215,7 @@ export default function App() {
       videoRef.current.srcObject = streamRef.current;
       videoRef.current.hidden = false;
       setCameraReady(true);
+      setCameraFullscreen(true);
     } catch (e) {
       setError(`Không mở được camera: ${e.message}`);
     }
@@ -208,9 +227,10 @@ export default function App() {
     canvas.height = video.videoHeight;
     canvas.getContext("2d").drawImage(video, 0, 0);
     canvas.toBlob(
-      (blob) => {
+      async (blob) => {
+        if (!blob) return setError("Không tạo được ảnh từ camera");
         setFile(new File([blob], "camera.jpg", { type: "image/jpeg" }));
-        recognize(blob);
+        await recognize(blob);
       },
       "image/jpeg",
       0.9,
@@ -304,6 +324,40 @@ export default function App() {
           Health check
         </button>
       </header>
+      {isMobile && cameraFullscreen && (
+        <div className="camera-fullscreen">
+          <div className="camera-topbar">
+            <button
+              className="camera-close"
+              onClick={closeCamera}
+              disabled={busy}
+            >
+              ×
+            </button>
+            <span>Scan water meter</span>
+            <span className="camera-status">● LIVE</span>
+          </div>
+          <video ref={videoRef} autoPlay playsInline />
+          <div className="camera-guide" aria-hidden="true" />
+          {processingStage ? (
+            <div className="camera-loading">
+              <span className="spinner" />
+              <b>{processingStage}</b>
+              <small>Vui lòng giữ nguyên ảnh...</small>
+            </div>
+          ) : (
+            <div className="camera-controls">
+              <span>Đưa mặt đồng hồ vào khung</span>
+              <button
+                className="shutter"
+                onClick={snap}
+                disabled={!cameraReady || busy}
+                aria-label="Chụp ảnh và nhận diện"
+              />
+            </div>
+          )}
+        </div>
+      )}
       <main>
         <section className="connection">
           <Field
@@ -396,12 +450,11 @@ export default function App() {
                 </>
               )}
             </div>
-            <video ref={videoRef} autoPlay playsInline hidden={!isMobile} />
             <canvas ref={canvasRef} hidden />
             {preview && (
               <img className="preview" src={preview} alt="Meter preview" />
             )}{" "}
-            {result && (
+            {result && !isMobile && (
               <div className="result-grid">
                 <div>
                   <h3>Response</h3>
@@ -531,6 +584,37 @@ export default function App() {
           </div>
         )}
       </main>
+      {isMobile && result && resultOpen && (
+        <div className="result-modal" role="dialog" aria-modal="true">
+          <div className="result-modal-card">
+            <div className="result-modal-head">
+              <div>
+                <span className="result-kicker">WBrain result</span>
+                <h2>Đã nhận diện</h2>
+              </div>
+              <button className="ghost" onClick={() => setResultOpen(false)}>
+                ×
+              </button>
+            </div>
+            <div className="result-number">
+              {result.crops?.[0]?.text || "Không phát hiện"}
+            </div>
+            <p className="muted">
+              Confidence:{" "}
+              {result.crops?.[0]
+                ? `${(result.crops[0].text_confidence * 100).toFixed(1)}%`
+                : "—"}
+            </p>
+            <Json value={result} />
+            <button
+              className="result-done"
+              onClick={() => setResultOpen(false)}
+            >
+              Đóng kết quả
+            </button>
+          </div>
+        </div>
+      )}
       {isMobile && (
         <nav className="mobile-nav" aria-label="Mobile navigation">
           <button
