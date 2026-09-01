@@ -452,7 +452,7 @@ export default function App() {
             </div>
             <canvas ref={canvasRef} hidden />
             {preview && (
-              <img className="preview" src={preview} alt="Meter preview" />
+              <BboxPreview src={preview} crops={result?.crops || []} />
             )}{" "}
             {result && !isMobile && (
               <div className="result-grid">
@@ -605,9 +605,10 @@ export default function App() {
                 ? `${(result.crops[0].text_confidence * 100).toFixed(1)}%`
                 : "—"}
             </p>
+            <BboxPreview src={preview} crops={result.crops || []} />
             <Json value={result} />
             <button
-              className="result-done"
+              className="result-done",
               onClick={() => setResultOpen(false)}
             >
               Đóng kết quả
@@ -640,6 +641,43 @@ export default function App() {
       <footer>
         WBrain · API-first demo · <a href="/docs">OpenAPI docs</a>
       </footer>
+    </div>
+  );
+}
+
+function BboxPreview({ src, crops }) {
+  const [size, setSize] = useState({ width: 1, height: 1 });
+  if (!src) return null;
+  return (
+    <div className="bbox-preview">
+      <img
+        src={src}
+        alt="Meter with detection boxes"
+        onLoad={(event) =>
+          setSize({
+            width: event.currentTarget.naturalWidth,
+            height: event.currentTarget.naturalHeight,
+          })
+        }
+      />
+      {crops?.map((crop, index) => {
+        const [x1, y1, x2, y2] = crop.box || [];
+        if (![x1, y1, x2, y2].every(Number.isFinite)) return null;
+        return (
+          <div
+            className="bbox"
+            key={index}
+            style={{
+              left: `${(x1 / size.width) * 100}%`,
+              top: `${(y1 / size.height) * 100}%`,
+              width: `${((x2 - x1) / size.width) * 100}%`,
+              height: `${((y2 - y1) / size.height) * 100}%`,
+            }}
+          >
+            <span>{crop.text || "text"} · {((crop.text_confidence || 0) * 100).toFixed(0)}%</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
