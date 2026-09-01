@@ -54,9 +54,16 @@ class EditCTCPredictor(OnnxRuntimeBase):
     def preprocess(self, image: np.ndarray) -> np.ndarray:
         if image is None or image.ndim != 3:
             raise ValueError("EditCTC expects a BGR image with three channels")
-        resized = cv2.resize(image, (self.width, self.height))
-        tensor = resized[:, :, ::-1].transpose(2, 0, 1)
-        return (tensor.astype(np.float32) / 255.0)[None, ...]
+        image_height, image_width = image.shape[:2]
+        valid_width = min(
+            self.width, max(1, int(np.ceil(self.height * image_width / image_height)))
+        )
+        resized = cv2.resize(image, (valid_width, self.height)).astype(np.float32)
+        resized = resized[:, :, ::-1].transpose(2, 0, 1) / 255.0
+        resized = (resized - 0.5) / 0.5
+        tensor = np.zeros((self.channels, self.height, self.width), dtype=np.float32)
+        tensor[:, :, :valid_width] = resized
+        return tensor[None, ...]
 
     def postprocess(self, outputs: list[np.ndarray]) -> tuple[str, float]:
         logits = np.asarray(outputs[0])[0]

@@ -209,9 +209,16 @@ class OnnxRecognizer:
         )
 
     def recognize(self, crop: np.ndarray) -> tuple[str, float]:
-        # This is the stable preprocessing contract for the EditCTC export.
-        image = cv2.resize(crop, (320, 48)).astype(np.float32) / 255.0
-        image = image[:, :, ::-1].transpose(2, 0, 1)[None, ...]
+        # Match PaddleOCR RecResizeImg: preserve aspect ratio, pad with gray,
+        # then normalize to [-1, 1].
+        image_height, image_width = crop.shape[:2]
+        valid_width = min(320, max(1, int(np.ceil(48 * image_width / image_height))))
+        image = cv2.resize(crop, (valid_width, 48)).astype(np.float32)
+        image = image[:, :, ::-1].transpose(2, 0, 1) / 255.0
+        image = (image - 0.5) / 0.5
+        padded = np.zeros((3, 48, 320), dtype=np.float32)
+        padded[:, :, :valid_width] = image
+        image = padded[None, ...]
         inputs = self.session.get_inputs()
         outputs = self.session.run(None, {inputs[0].name: image})
         logits = outputs[0][0]

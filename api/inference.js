@@ -202,16 +202,23 @@ function crop(image, box) {
 function ocrTensor(image) {
   const width = 320,
     height = 48;
+  const validWidth = Math.min(
+    width,
+    Math.max(1, Math.ceil((height * image.width) / image.height)),
+  );
   const tensor = new Float32Array(3 * width * height);
+  // PaddleOCR RecResizeImg pads with normalized gray (0.0), not black.
   for (let y = 0; y < height; y++)
-    for (let x = 0; x < width; x++) {
+    for (let x = 0; x < validWidth; x++) {
       const source =
         (Math.floor((y * image.height) / height) * image.width +
-          Math.floor((x * image.width) / width)) *
+          Math.floor((x * image.width) / validWidth)) *
         4;
-      tensor[y * width + x] = image.data[source] / 255;
-      tensor[width * height + y * width + x] = image.data[source + 1] / 255;
-      tensor[2 * width * height + y * width + x] = image.data[source + 2] / 255;
+      tensor[y * width + x] = image.data[source] / 127.5 - 1;
+      tensor[width * height + y * width + x] =
+        image.data[source + 1] / 127.5 - 1;
+      tensor[2 * width * height + y * width + x] =
+        image.data[source + 2] / 127.5 - 1;
     }
   return tensor;
 }
