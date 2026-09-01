@@ -55,9 +55,13 @@ function Field({ label, ...props }) {
 }
 
 export default function App() {
+  const mobileRoute = window.location.pathname.startsWith("/mobile");
+  const desktopRoute = window.location.pathname.startsWith("/pc");
   const [key, setKey] = useState(localStorage.getItem("wbrain_api_key") || "");
   const [isMobile, setIsMobile] = useState(
-    () => window.matchMedia("(max-width: 720px)").matches,
+    () =>
+      mobileRoute ||
+      (!desktopRoute && window.matchMedia("(max-width: 720px)").matches),
   );
   const [meters, setMeters] = useState([]);
   const [selectedMeter, setSelectedMeter] = useState("");
@@ -105,7 +109,9 @@ export default function App() {
   }, []);
   useEffect(() => {
     const media = window.matchMedia("(max-width: 720px)");
-    const update = () => setIsMobile(media.matches);
+    const update = () => {
+      if (!mobileRoute && !desktopRoute) setIsMobile(media.matches);
+    };
     update();
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
@@ -285,7 +291,7 @@ export default function App() {
     ["admin", "Models & audit"],
   ];
   return (
-    <>
+    <div className={`app-shell ${isMobile ? "mobile-app" : "desktop-app"}`}>
       <header>
         <div>
           <div className="eyebrow">ON-PREMISE COMPUTER VISION</div>
@@ -525,10 +531,32 @@ export default function App() {
           </div>
         )}
       </main>
+      {isMobile && (
+        <nav className="mobile-nav" aria-label="Mobile navigation">
+          <button
+            className={tab === "recognize" ? "active" : "ghost"}
+            onClick={() => setTab("recognize")}
+          >
+            ⌾<span>Scan</span>
+          </button>
+          <button
+            className={tab === "readings" ? "active" : "ghost"}
+            onClick={() => setTab("readings")}
+          >
+            ▤<span>History</span>
+          </button>
+          <button
+            className={tab === "meters" ? "active" : "ghost"}
+            onClick={() => setTab("meters")}
+          >
+            ◉<span>Meters</span>
+          </button>
+        </nav>
+      )}
       <footer>
         WBrain · API-first demo · <a href="/docs">OpenAPI docs</a>
       </footer>
-    </>
+    </div>
   );
 }
 
